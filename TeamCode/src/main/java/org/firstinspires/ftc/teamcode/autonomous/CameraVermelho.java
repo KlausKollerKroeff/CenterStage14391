@@ -30,22 +30,10 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.motors.Matrix12vMotor;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraFrame;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -57,33 +45,21 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import java.nio.channels.Pipe;
-import java.text.StringCharacterIterator;
-
 @Config
-@Autonomous(name = "Camera", group = "Autonomous")
-public class Camera extends LinearOpMode {
+@Autonomous(name = "CameraVermelho", group = "Autonomous")
+public class CameraVermelho extends LinearOpMode {
 
     OpenCvWebcam webcam = null;
     String pos;
+
+    public static final double DELAY = 0.5;
 
 
     @Override
@@ -113,35 +89,58 @@ public class Camera extends LinearOpMode {
 
         Action trajectoryActionM = drive.actionBuilder(drive.pose)
         //Meio
-                .lineToYSplineHeading(33, Math.toRadians(0))
-                .waitSeconds(2)
-                .setTangent(Math.toRadians(90))
-                .lineToY(48)
-                .setTangent(Math.toRadians(0))
-                .lineToX(32)
-                .strafeTo(new Vector2d(44.5, 30))
-                .turn(Math.toRadians(180))
-                .lineToX(47.5)
-                .waitSeconds(3)
+                .strafeTo(new Vector2d(10, 30))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(0, 30))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(0, 0))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(70, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(100, 42), Math.toRadians(180))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(100, 17))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(105, 17))
                 .build();
 
         Action trajectoryActionE = drive.actionBuilder(drive.pose)
         //Esquerda
-                .lineToY(37)
-                .setTangent(Math.toRadians(0))
-                .lineToX(18)
-                .waitSeconds(3)
-                .setTangent(Math.toRadians(0))
-                .lineToXSplineHeading(46, Math.toRadians(180))
-                .waitSeconds(3)
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(6, 60))
+                .waitSeconds(DELAY)
+                .lineToYSplineHeading(30, Math.toRadians(1))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(11.5, 30))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(11.5, 0))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(70, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(100, 53), Math.toRadians(180))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(100, 17))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(105, 17))
                 .build();
 
         Action trajectoryActionD = drive.actionBuilder(drive.pose)
         //Direita
-                .lineToYSplineHeading(33, Math.toRadians(180))
-                .waitSeconds(2)
-                .strafeTo(new Vector2d(46, 30))
-                .waitSeconds(3)
+                //Direita
+                .strafeTo(new Vector2d(13, 60))
+                .waitSeconds(DELAY)
+                .lineToYSplineHeading(30, Math.toRadians(180))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(13, 61))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(80, 59))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(100, 48), Math.toRadians(180))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(100, 17))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(105, 17))
+                .waitSeconds(DELAY)
                 .build();
 
         Action trajectoryActionCloseOut = drive.actionBuilder(drive.pose)
