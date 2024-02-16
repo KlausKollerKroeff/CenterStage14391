@@ -29,19 +29,9 @@
 
 package org.firstinspires.ftc.teamcode.autonomous;
 
-// RR-specific imports
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
-
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
@@ -55,17 +45,21 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
-@Autonomous(name = "CameraAzul", group = "Autonomous")
-public class CameraAzul extends LinearOpMode {
+@Autonomous(name = "CameraVermelhoFora", group = "Autonomous")
+public class CameraVermelhoFora extends LinearOpMode {
 
     OpenCvWebcam webcam = null;
     String pos;
 
     public static final double DELAY = 0.5;
-
 
 
     @Override
@@ -90,10 +84,11 @@ public class CameraAzul extends LinearOpMode {
         });
 
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(11.5, 60, Math.toRadians(270)));
+
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-35, -60, Math.toRadians(270)));
 
         Action trajectoryActionM = drive.actionBuilder(drive.pose)
-                //Meio
+        //Meio
                 .strafeTo(new Vector2d(10, 30))
                 .waitSeconds(DELAY)
                 .strafeTo(new Vector2d(0, 30))
@@ -104,15 +99,13 @@ public class CameraAzul extends LinearOpMode {
                 .waitSeconds(DELAY)
                 .splineTo(new Vector2d(100, 42), Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(100, 17))
+                .strafeTo(new Vector2d(100, 15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(105, 17))
+                .strafeTo(new Vector2d(105, 15))
                 .build();
 
         Action trajectoryActionE = drive.actionBuilder(drive.pose)
-                //Esquerda
-                //////////////////////////////////////////////////
-                //Ir e virar para a marcação:
+        //Esquerda
                 .waitSeconds(DELAY)
                 .strafeTo(new Vector2d(6, 60))
                 .waitSeconds(DELAY)
@@ -126,12 +119,13 @@ public class CameraAzul extends LinearOpMode {
                 .waitSeconds(DELAY)
                 .splineTo(new Vector2d(100, 53), Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(100, 17))
+                .strafeTo(new Vector2d(100, 15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(105, 17))
+                .strafeTo(new Vector2d(105, 15))
                 .build();
 
         Action trajectoryActionD = drive.actionBuilder(drive.pose)
+        //Direita
                 //Direita
                 .strafeTo(new Vector2d(13, 60))
                 .waitSeconds(DELAY)
@@ -143,9 +137,9 @@ public class CameraAzul extends LinearOpMode {
                 .waitSeconds(DELAY)
                 .splineTo(new Vector2d(100, 48), Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(100, 17))
+                .strafeTo(new Vector2d(100, 15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(105, 17))
+                .strafeTo(new Vector2d(105, 15))
                 .waitSeconds(DELAY)
                 .build();
 
@@ -215,11 +209,11 @@ public class CameraAzul extends LinearOpMode {
             telemetry.addData("Esquerda", rightavgfin);
             telemetry.update();
 
-            if (leftavgfin < rightavgfin && leftavgfin < midavgfin){
+            if (leftavgfin > rightavgfin && leftavgfin > midavgfin){
                 telemetry.addLine("Direita");
                 pos = "Direita";
 
-            }else if (rightavgfin < midavgfin){
+            }else if (rightavgfin > midavgfin){
                 telemetry.addLine("Esquerda");
                 pos = "Esquerda";
             }else{
