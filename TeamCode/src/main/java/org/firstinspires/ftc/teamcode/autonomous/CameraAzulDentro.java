@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode.autonomous;
 
+// RR-specific imports
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -51,13 +53,14 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @Config
-@Autonomous(name = "CameraVermelhoFora", group = "Autonomous")
-public class CameraVermelhoFora extends LinearOpMode {
+@Autonomous(name = "CameraAzulDentro", group = "Autonomous")
+public class CameraAzulDentro extends LinearOpMode {
 
     OpenCvWebcam webcam = null;
     String pos;
 
     public static final double DELAY = 0.5;
+
 
 
     @Override
@@ -82,18 +85,17 @@ public class CameraVermelhoFora extends LinearOpMode {
         });
 
 
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(5, -60, Math.toRadians(270)));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(11.5, 60, Math.toRadians(270)));
-
-        Action trajectoryActionM = drive.actionBuilder(drive.pose)
+        Action trajectoryActionMeioBlue = drive.actionBuilder(drive.pose)
                 //Meio
                 //////////////////////////////////////////////
                 //Indo para pontuar na marcação
-                .strafeTo(new Vector2d(13, 30))
+                .strafeTo(new Vector2d(13, -30))
                 .waitSeconds(DELAY)
                 //Pontuando
                 //Indo para baixo da treliça
-                .strafeTo(new Vector2d(5, 32))
+                .strafeTo(new Vector2d(5, -32))
                 .waitSeconds(DELAY)
                 //Indo para o meio
                 .strafeTo(new Vector2d(5, 0))
@@ -101,53 +103,24 @@ public class CameraVermelhoFora extends LinearOpMode {
                 //Indo para o backdrop
                 .strafeTo(new Vector2d(-70, 0))
                 .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 46), Math.toRadians(1))
+                .splineTo(new Vector2d(-100, -46), Math.toRadians(180))
                 .waitSeconds(DELAY)
                 //Pontuando
                 //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
+                .strafeTo(new Vector2d(-100, -15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                .strafeTo(new Vector2d(-105, -15))
                 .build();
 
-        Action trajectoryActionE = drive.actionBuilder(drive.pose)
-                //Esquerda
-                //////////////////////////////////////////////////
-                //Ir e virar para a marcação
-                .strafeTo(new Vector2d(13, 60))
-                .waitSeconds(DELAY)
-                .lineToYSplineHeading(30, Math.toRadians(1))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(11.5, 30))
-                .waitSeconds(DELAY)
-                //Pontuar
-                //Indo para baixo da treliça
-                .strafeTo(new Vector2d(5, 32))
-                .waitSeconds(DELAY)
-                //Indo para o meio
-                .strafeTo(new Vector2d(5, 0))
-                .waitSeconds(DELAY)
-                //Indo para o backdrop
-                .strafeTo(new Vector2d(-70, 0))
-                .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 42), Math.toRadians(1))
-                .waitSeconds(DELAY)
-                //Pontuando
-                //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
-                .build();
-
-        Action trajectoryActionD = drive.actionBuilder(drive.pose)
-                //Direita Vermelho
+        Action trajectoryActionEsquerdaBlue = drive.actionBuilder(drive.pose)
+                //Esquerda Azul
                 //////////////////////////////////////////////////
                 //Ir e virar para a marcação:
-                .strafeTo(new Vector2d(13, 60))
+                .strafeTo(new Vector2d(13, -60))
                 .waitSeconds(DELAY)
                 .lineToYSplineHeading(30, Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(11.5, 30))
+                .strafeTo(new Vector2d(11.5, -30))
                 .waitSeconds(DELAY)
                 // Ir para o meio
                 .strafeTo(new Vector2d(11.5, 0))
@@ -155,13 +128,42 @@ public class CameraVermelhoFora extends LinearOpMode {
                 // Ir para o backdrop
                 .strafeTo(new Vector2d(-70, 0))
                 .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 53), Math.toRadians(1))
+                .splineTo(new Vector2d(-100, -53), Math.toRadians(180))
                 .waitSeconds(DELAY)
                 //Pontuar
                 //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
+                .strafeTo(new Vector2d(-100, -15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                .strafeTo(new Vector2d(-105, -15))
+                .build();
+
+        Action trajectoryActionDireitaBlue = drive.actionBuilder(drive.pose)
+                //Direita Azul
+                //////////////////////////////////////////////////
+                //Ir e virar para a marcação
+                .strafeTo(new Vector2d(13, -60))
+                .waitSeconds(DELAY)
+                .lineToYSplineHeading(30, Math.toRadians(1))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(11.5, -30))
+                .waitSeconds(DELAY)
+                //Pontuar
+                //Indo para baixo da treliça
+                .strafeTo(new Vector2d(5, -32))
+                .waitSeconds(DELAY)
+                //Indo para o meio
+                .strafeTo(new Vector2d(5, 0))
+                .waitSeconds(DELAY)
+                //Indo para o backdrop
+                .strafeTo(new Vector2d(-70, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(-100, -42), Math.toRadians(180))
+                .waitSeconds(DELAY)
+                //Pontuando
+                //Estacionando
+                .strafeTo(new Vector2d(-100, -15))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-105, -15))
                 .build();
 
         while (!isStopRequested() && !opModeIsActive()) {
@@ -173,11 +175,11 @@ public class CameraVermelhoFora extends LinearOpMode {
         if (isStopRequested()) return;
         Action trajectoryActionChosen;
         if (pos == "Meio") {
-            trajectoryActionChosen = trajectoryActionM;
+            trajectoryActionChosen = trajectoryActionMeioBlue;
         } else if (pos == "Esquerda") {
-            trajectoryActionChosen = trajectoryActionE;}
+            trajectoryActionChosen = trajectoryActionEsquerdaBlue;}
         else {
-            trajectoryActionChosen = trajectoryActionD;
+            trajectoryActionChosen = trajectoryActionDireitaBlue;
         }
 
         Actions.runBlocking(trajectoryActionChosen);
@@ -226,11 +228,11 @@ public class CameraVermelhoFora extends LinearOpMode {
             telemetry.addData("Esquerda", rightavgfin);
             telemetry.update();
 
-            if (leftavgfin > rightavgfin && leftavgfin > midavgfin){
+            if (leftavgfin < rightavgfin && leftavgfin < midavgfin){
                 telemetry.addLine("Direita");
                 pos = "Direita";
 
-            }else if (rightavgfin > midavgfin){
+            }else if (rightavgfin < midavgfin){
                 telemetry.addLine("Esquerda");
                 pos = "Esquerda";
             }else{

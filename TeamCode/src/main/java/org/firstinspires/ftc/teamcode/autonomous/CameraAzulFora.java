@@ -75,7 +75,7 @@ public class CameraAzulFora extends LinearOpMode {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPSIDE_DOWN);
+                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
@@ -85,67 +85,77 @@ public class CameraAzulFora extends LinearOpMode {
         });
 
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(11.5, 60, Math.toRadians(270)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-5, -60, Math.toRadians(270)));
 
-        Action trajectoryActionM = drive.actionBuilder(drive.pose)
+        Action trajectoryActionMeioBlue = drive.actionBuilder(drive.pose)
                 //Meio
-                .strafeTo(new Vector2d(10, 30))
+                //////////////////////////////////////////////
+                //Indo para pontuar na marcação
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(0, 30))
+                .strafeTo(new Vector2d(-6.5, -30))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(0, 0))
+                //Pontuando
+                //Indo para o backdrop
+                .splineTo(new Vector2d(-100, -46), Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(70, 0))
+                //Pontuando
+                //Estacionando
+                .strafeTo(new Vector2d(-100, -15))
                 .waitSeconds(DELAY)
-                .splineTo(new Vector2d(100, 42), Math.toRadians(180))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(105, 15))
+                .strafeTo(new Vector2d(-105, -15))
                 .build();
 
-        Action trajectoryActionE = drive.actionBuilder(drive.pose)
-                //Esquerda
+        Action trajectoryActionEsquerdaBlue = drive.actionBuilder(drive.pose)
+                //Esquerda Azul
                 //////////////////////////////////////////////////
                 //Ir e virar para a marcação:
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(6, 60))
-                .waitSeconds(DELAY)
-                .lineToYSplineHeading(30, Math.toRadians(1))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(11.5, 30))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(11.5, 0))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(70, 0))
-                .waitSeconds(DELAY)
-                .splineTo(new Vector2d(100, 53), Math.toRadians(180))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(105, 15))
-                .build();
-
-        Action trajectoryActionD = drive.actionBuilder(drive.pose)
-                //Direita
-                .strafeTo(new Vector2d(13, 60))
+                .strafeTo(new Vector2d(-6.5, -60))
                 .waitSeconds(DELAY)
                 .lineToYSplineHeading(30, Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(13, 61))
+                .strafeTo(new Vector2d(-5, -30))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(80, 59))
+                .strafeTo(new Vector2d(-5, -60))
                 .waitSeconds(DELAY)
-                .splineTo(new Vector2d(100, 48), Math.toRadians(180))
+                //Indo para o backdrop
+                .splineTo(new Vector2d(-100, -53), Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(100, 15))
+                //Pontuar
+                //Estacionando
+                .strafeTo(new Vector2d(-100, -15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(105, 15))
-                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-105, -15))
                 .build();
 
-        Action trajectoryActionCloseOut = drive.actionBuilder(drive.pose)
-                .strafeTo(new Vector2d(48, 12))
+        Action trajectoryActionDireitaBlue = drive.actionBuilder(drive.pose)
+                //Direita Azul
+                //////////////////////////////////////////////////
+                //Ir e virar para a marcação
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(13, -60))
+                .waitSeconds(DELAY)
+                .lineToYSplineHeading(30, Math.toRadians(1))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(11.5, -30))
+                .waitSeconds(DELAY)
+                //Pontuar
+                //Indo para baixo da treliça
+                .strafeTo(new Vector2d(5, -32))
+                .waitSeconds(DELAY)
+                //Indo para o meio
+                .strafeTo(new Vector2d(5, 0))
+                .waitSeconds(DELAY)
+                //Indo para o backdrop
+                .strafeTo(new Vector2d(-70, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(-100, -42), Math.toRadians(180))
+                .waitSeconds(DELAY)
+                //Pontuando
+                //Estacionando
+                .strafeTo(new Vector2d(-100, -15))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-105, -15))
                 .build();
 
         while (!isStopRequested() && !opModeIsActive()) {
@@ -157,11 +167,11 @@ public class CameraAzulFora extends LinearOpMode {
         if (isStopRequested()) return;
         Action trajectoryActionChosen;
         if (pos == "Meio") {
-            trajectoryActionChosen = trajectoryActionM;
+            trajectoryActionChosen = trajectoryActionMeioBlue;
         } else if (pos == "Esquerda") {
-            trajectoryActionChosen = trajectoryActionE;}
+            trajectoryActionChosen = trajectoryActionEsquerdaBlue;}
         else {
-            trajectoryActionChosen = trajectoryActionD;
+            trajectoryActionChosen = trajectoryActionDireitaBlue;
         }
 
         Actions.runBlocking(trajectoryActionChosen);
@@ -181,8 +191,8 @@ public class CameraAzulFora extends LinearOpMode {
             telemetry.addLine("Pipeline rodando");
 
             Rect leftRect = new Rect(70, 400, 250, 250);
-            Rect rightRect = new Rect(1640, 400, 250, 250);
-            Rect midRect = new Rect(700, 400, 350, 250);
+            Rect rightRect = new Rect(1000, 400, 250, 250);
+            Rect midRect = new Rect(570, 350, 150, 150);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColor, 2);
