@@ -56,18 +56,18 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
         // drive model parameters
-        public double inPerTick = 0;
+        public double inPerTick = 0.00053860215;
         public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        public double trackWidthTicks = 26464.583757787164;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        public double kS = 1.2651992756434849;
+        public double kV = 0.000103818221098649;
+        public double kA = 0.000032;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -79,9 +79,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.0;
-        public double lateralGain = 0.0;
-        public double headingGain = 0.0; // shared with turn
+        public double axialGain = 1.8;
+        public double lateralGain = 0.3; //0.35
+        public double headingGain = 0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -199,9 +199,9 @@ public final class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "esquerda");
+        leftFront = hardwareMap.get(DcMotorEx.class, "esquerdaPar");
         leftBack = hardwareMap.get(DcMotorEx.class, "esquerdaTras");
-        rightBack = hardwareMap.get(DcMotorEx.class, "direitaTras");
+        rightBack = hardwareMap.get(DcMotorEx.class, "direitaTrasPerp");
         rightFront = hardwareMap.get(DcMotorEx.class, "direita");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
