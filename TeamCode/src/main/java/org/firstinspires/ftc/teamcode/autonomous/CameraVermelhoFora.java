@@ -36,6 +36,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -57,7 +59,10 @@ public class CameraVermelhoFora extends LinearOpMode {
     OpenCvWebcam webcam = null;
     String pos;
 
+    public Servo intakeServo;
+
     public static final double DELAY = 0.5;
+
 
 
     @Override
@@ -66,6 +71,8 @@ public class CameraVermelhoFora extends LinearOpMode {
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+
+        intakeServo = hardwareMap.get(Servo.class, "intake");
 
         webcam.setPipeline(new Pipeline());
 
@@ -93,21 +100,21 @@ public class CameraVermelhoFora extends LinearOpMode {
                 .waitSeconds(DELAY)
                 //Pontuando
                 //Indo para baixo da treliça
-                .strafeTo(new Vector2d(5, 32))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(5, 32))
+                //.waitSeconds(DELAY)
                 //Indo para o meio
-                .strafeTo(new Vector2d(5, 0))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(5, 0))
+                //.waitSeconds(DELAY)
                 //Indo para o backdrop
-                .strafeTo(new Vector2d(-70, 0))
-                .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 46), Math.toRadians(1))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(-70, 0))
+                //.waitSeconds(DELAY)
+                //.splineTo(new Vector2d(-100, 46), Math.toRadians(1))
+                //.waitSeconds(DELAY)
                 //Pontuando
                 //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                //.strafeTo(new Vector2d(-100, 15))
+                //.waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(-105, 15))
                 .build();
 
         Action trajectoryActionE = drive.actionBuilder(drive.pose)
@@ -116,27 +123,27 @@ public class CameraVermelhoFora extends LinearOpMode {
                 //Ir e virar para a marcação
                 .strafeTo(new Vector2d(13, 60))
                 .waitSeconds(DELAY)
-                .lineToYSplineHeading(30, Math.toRadians(1))
+                .lineToYSplineHeading(30, Math.toRadians(356))
                 .waitSeconds(DELAY)
                 .strafeTo(new Vector2d(11.5, 30))
                 .waitSeconds(DELAY)
                 //Pontuar
                 //Indo para baixo da treliça
-                .strafeTo(new Vector2d(5, 32))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(5, 32))
+                //.waitSeconds(DELAY)
                 //Indo para o meio
-                .strafeTo(new Vector2d(5, 0))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(5, 0))
+                //.waitSeconds(DELAY)
                 //Indo para o backdrop
-                .strafeTo(new Vector2d(-70, 0))
-                .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 42), Math.toRadians(1))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(-70, 0))
+                //.waitSeconds(DELAY)
+                //.splineTo(new Vector2d(-100, 42), Math.toRadians(1))
+                //.waitSeconds(DELAY)
                 //Pontuando
                 //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                //.strafeTo(new Vector2d(-100, 15))
+                //.waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(-105, 15))
                 .build();
 
         Action trajectoryActionD = drive.actionBuilder(drive.pose)
@@ -150,18 +157,18 @@ public class CameraVermelhoFora extends LinearOpMode {
                 .strafeTo(new Vector2d(11.5, 30))
                 .waitSeconds(DELAY)
                 // Ir para o meio
-                .strafeTo(new Vector2d(11.5, 0))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(11.5, 0))
+                //.waitSeconds(DELAY)
                 // Ir para o backdrop
-                .strafeTo(new Vector2d(-70, 0))
-                .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 53), Math.toRadians(1))
-                .waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(-70, 0))
+                //.waitSeconds(DELAY)
+                //.splineTo(new Vector2d(-100, 53), Math.toRadians(1))
+                //.waitSeconds(DELAY)
                 //Pontuar
                 //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                //.strafeTo(new Vector2d(-100, 15))
+                //.waitSeconds(DELAY)
+                //.strafeTo(new Vector2d(-105, 15))
                 .build();
 
         while (!isStopRequested() && !opModeIsActive()) {
@@ -227,12 +234,12 @@ public class CameraVermelhoFora extends LinearOpMode {
             telemetry.update();
 
             if (leftavgfin > rightavgfin && leftavgfin > midavgfin){
-                telemetry.addLine("Direita");
-                pos = "Direita";
-
-            }else if (rightavgfin > midavgfin){
                 telemetry.addLine("Esquerda");
                 pos = "Esquerda";
+
+            }else if (rightavgfin > midavgfin){
+                telemetry.addLine("Direita");
+                pos = "Direita";
             }else{
                 telemetry.addLine("Meio");
                 pos = "Meio";
