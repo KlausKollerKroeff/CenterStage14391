@@ -34,11 +34,17 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.opencv.core.Core;
@@ -51,6 +57,26 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import androidx.annotation.NonNull;
+
+// RR-specific imports
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+
+// Non-RR imports
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
 @Autonomous(name = "CameraVermelhoFora", group = "Autonomous")
@@ -59,11 +85,241 @@ public class CameraVermelhoFora extends LinearOpMode {
     OpenCvWebcam webcam = null;
     String pos;
 
-    public Servo intakeServo;
-
     public static final double DELAY = 0.5;
+    public static final double DELAYGRANDE = 2;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //intake
+    public class Intake {
+        private DcMotor intakeMotor;
+
+        private CRServo intakeServo;
+
+        public Intake (HardwareMap hardwareMap) {
+            intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+            intakeServo = hardwareMap.get(CRServo.class, "servoIntake");
+        }
+
+        public class StartIntake implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    intakeServo.setPower(-1);
+                    intakeMotor.setPower(-1);
+                    initialized = true;
+                }
+
+                intakeServo.setPower(-1);
+                intakeMotor.setPower(-1);
+
+                return false;
+            }
+        }
+        public Action StartIntake() {
+            return new StartIntake();
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+
+        public class StopIntake implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    intakeServo.setPower(0);
+                    intakeMotor.setPower(0);
+                    initialized = true;
+                }
+
+                intakeServo.setPower(0);
+                intakeMotor.setPower(0);
+
+                return false;
+            }
+        }
+        public Action StopIntake() {
+            return new StopIntake();
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //pinça
+    public class Claw {
+        private Servo garra;
+
+        public Claw(HardwareMap hardwareMap) {
+            garra = hardwareMap.get(Servo.class, "pincaEsquerda");
+        }
+
+        public class CloseClaw implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    garra.setPosition(0.5);
+                    initialized = true;
+                }
+
+                garra.setPosition(0.5);
 
 
+                double pos = garra.getPosition();
+
+                packet.put("ClawPos", pos);
+                return false;
+            }
+        }
+        public Action CloseClaw() {
+            return new CloseClaw();
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+        public class OpenClaw implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    garra.setPosition(0);
+                    initialized = true;
+                }
+
+                garra.setPosition(0);
+
+
+                double pos = garra.getPosition();
+
+                packet.put("ClawPos", pos);
+                return false;
+            }
+        }
+        public Action OpenClaw() {
+            return new OpenClaw();
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //braço
+    public class Lift {
+        private DcMotorEx lift;
+
+        private Servo pulsoServo;
+
+        public Lift(HardwareMap hardwareMap) {
+            lift = hardwareMap.get(DcMotorEx.class, "braço");
+            lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lift.setDirection(DcMotorSimple.Direction.FORWARD);
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            pulsoServo= hardwareMap.get(Servo.class, "pulsoOuttake");
+
+        }
+
+        public class LiftUp implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    telemetry.addData("INICIALIZADO LIFT:", true);
+                    lift.setDirection(DcMotorSimple.Direction.REVERSE);
+                    lift.setTargetPosition(1025);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setVelocity(750);
+                    initialized = true;
+                }
+
+                lift.setTargetPosition(1025);
+                lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                lift.setVelocity(750);
+
+                double pos = lift.getCurrentPosition();
+
+                packet.put("liftPos", pos);
+                if(lift.isBusy()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        public Action liftUp() {
+            return new LiftUp();
+        }
+
+        ////////////////////////////////////////
+
+        public class LiftDown implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    lift.setDirection(DcMotorSimple.Direction.REVERSE);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setVelocity(750);
+                    initialized = true;
+                }
+
+                lift.setTargetPosition(0);
+                lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                lift.setVelocity(750);
+                pulsoServo.setPosition(0.18);
+
+                double pos = lift.getCurrentPosition();
+                telemetry.addData("posicao", pos);
+                packet.put("liftPos", pos);
+                if (lift.isBusy()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        public Action liftDown(){
+            return new LiftDown();
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //pulso
+    public class PulsoOuttake {
+        private Servo pulsoServo;
+
+        public PulsoOuttake(HardwareMap hardwareMap) {
+            pulsoServo = hardwareMap.get(Servo.class, "pulsoOuttake");
+
+        }
+
+        public class PulsoUp implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    telemetry.addData("INICIALIZADO PULSO:", true);
+                    pulsoServo.setPosition(1);
+                    initialized = true;
+                }
+
+                pulsoServo.setPosition(1);
+
+
+                double pos = pulsoServo.getPosition();
+
+                packet.put("PulsoPos", pos);
+                return false;
+            }
+        }
+
+        public Action PulsoUp() {
+            return new PulsoUp();
+        }
+    }
 
     @Override
     public void runOpMode() {
@@ -72,7 +328,7 @@ public class CameraVermelhoFora extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
-        intakeServo = hardwareMap.get(Servo.class, "intake");
+
 
         webcam.setPipeline(new Pipeline());
 
@@ -91,59 +347,85 @@ public class CameraVermelhoFora extends LinearOpMode {
 
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(11.5, 60, Math.toRadians(270)));
+        Lift lift = new Lift(hardwareMap);
+        Claw claw = new Claw(hardwareMap);
+        Intake intake = new Intake(hardwareMap);
+        PulsoOuttake pulsoOuttake = new PulsoOuttake(hardwareMap);
 
         Action trajectoryActionM = drive.actionBuilder(drive.pose)
                 //Meio
                 //////////////////////////////////////////////
+                .afterTime(0, claw.CloseClaw())
+                .waitSeconds(DELAY)
                 //Indo para pontuar na marcação
                 .strafeTo(new Vector2d(13, 30))
                 .waitSeconds(DELAY)
                 //Pontuando
-                //Indo para baixo da treliça
-                //.strafeTo(new Vector2d(5, 32))
-                //.waitSeconds(DELAY)
+                .afterTime(0, intake.StartIntake())
+                .afterTime(5, intake.StopIntake())
+                .waitSeconds(DELAYGRANDE)
                 //Indo para o meio
-                //.strafeTo(new Vector2d(5, 0))
-                //.waitSeconds(DELAY)
+                .strafeTo(new Vector2d(40, 30))
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(40, 0))
+                .waitSeconds(DELAY)
                 //Indo para o backdrop
-                //.strafeTo(new Vector2d(-70, 0))
-                //.waitSeconds(DELAY)
-                //.splineTo(new Vector2d(-100, 46), Math.toRadians(1))
-                //.waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-50, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(-70, 42), Math.toRadians(1))
+                .waitSeconds(DELAY)
                 //Pontuando
-                //Estacionando
-                //.strafeTo(new Vector2d(-100, 15))
-                //.waitSeconds(DELAY)
-                //.strafeTo(new Vector2d(-105, 15))
+                .waitSeconds(DELAY)
+                .afterTime(1.5, lift.liftUp())
+                .waitSeconds(DELAYGRANDE)
+                .afterTime(1, pulsoOuttake.PulsoUp())
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-100,42))
+                .waitSeconds(DELAY)
+                .afterTime(2, claw.OpenClaw())
+                .waitSeconds(DELAY)
+                .afterTime(3, lift.liftDown())
+                .waitSeconds(DELAY)
+                .afterTime(0, claw.CloseClaw())
+                .waitSeconds(DELAY)
                 .build();
 
         Action trajectoryActionE = drive.actionBuilder(drive.pose)
                 //Esquerda
                 //////////////////////////////////////////////////
+                .afterTime(0.1, claw.CloseClaw())
+                .waitSeconds(DELAY)
                 //Ir e virar para a marcação
+                .waitSeconds(DELAY)
                 .strafeTo(new Vector2d(13, 60))
                 .waitSeconds(DELAY)
-                .lineToYSplineHeading(30, Math.toRadians(356))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(11.5, 30))
+                .lineToYSplineHeading(24, Math.toRadians(1))
                 .waitSeconds(DELAY)
                 //Pontuar
-                //Indo para baixo da treliça
-                //.strafeTo(new Vector2d(5, 32))
-                //.waitSeconds(DELAY)
-                //Indo para o meio
-                //.strafeTo(new Vector2d(5, 0))
-                //.waitSeconds(DELAY)
+                .afterTime(0, intake.StartIntake())
+                .afterTime(5, intake.StopIntake())
+                .waitSeconds(DELAYGRANDE)
+                //indo para o meio
+                .strafeTo(new Vector2d(11.5, 0))
+                .waitSeconds(DELAY)
                 //Indo para o backdrop
-                //.strafeTo(new Vector2d(-70, 0))
-                //.waitSeconds(DELAY)
-                //.splineTo(new Vector2d(-100, 42), Math.toRadians(1))
-                //.waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-50, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(-70, 42), Math.toRadians(1))
+                .waitSeconds(DELAY)
                 //Pontuando
-                //Estacionando
-                //.strafeTo(new Vector2d(-100, 15))
-                //.waitSeconds(DELAY)
-                //.strafeTo(new Vector2d(-105, 15))
+                .afterTime(1.5, lift.liftUp())
+                .waitSeconds(DELAYGRANDE)
+                .afterTime(1, pulsoOuttake.PulsoUp())
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-100,42))
+                .waitSeconds(DELAY)
+                .afterTime(2, claw.OpenClaw())
+                .waitSeconds(DELAY)
+                .afterTime(3, lift.liftDown())
+                .waitSeconds(DELAY)
+                .afterTime(0, claw.CloseClaw())
+                .waitSeconds(DELAY)
                 .build();
 
         Action trajectoryActionD = drive.actionBuilder(drive.pose)
@@ -152,25 +434,33 @@ public class CameraVermelhoFora extends LinearOpMode {
                 //Ir e virar para a marcação:
                 .strafeTo(new Vector2d(13, 60))
                 .waitSeconds(DELAY)
-                .lineToYSplineHeading(30, Math.toRadians(180))
+                .lineToYSplineHeading(24, Math.toRadians(180))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(11.5, 30))
-                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(11.5, 60))
+                //pontuar
+                .afterTime(0, intake.StartIntake())
+                .afterTime(5, intake.StopIntake())
+                .waitSeconds(DELAYGRANDE)
                 // Ir para o meio
-                //.strafeTo(new Vector2d(11.5, 0))
-                //.waitSeconds(DELAY)
+                .strafeTo(new Vector2d(11.5, 0))
+                .waitSeconds(DELAY)
                 // Ir para o backdrop
-                //.strafeTo(new Vector2d(-70, 0))
-                //.waitSeconds(DELAY)
-                //.splineTo(new Vector2d(-100, 53), Math.toRadians(1))
-                //.waitSeconds(DELAY)
-                //Pontuar
-                //Estacionando
-                //.strafeTo(new Vector2d(-100, 15))
-                //.waitSeconds(DELAY)
-                //.strafeTo(new Vector2d(-105, 15))
+                .strafeTo(new Vector2d(-50, 0))
+                .waitSeconds(DELAY)
+                .splineTo(new Vector2d(-100, 53), Math.toRadians(1))
+                .waitSeconds(DELAY)
+                .afterTime(1.5, lift.liftUp())
+                .waitSeconds(DELAYGRANDE)
+                .afterTime(1, pulsoOuttake.PulsoUp())
+                .waitSeconds(DELAY)
+                .strafeTo(new Vector2d(-100,53))
+                .waitSeconds(DELAY)
+                .afterTime(2, claw.OpenClaw())
+                .waitSeconds(DELAY)
+                .afterTime(3, lift.liftDown())
+                .waitSeconds(DELAY)
+                .afterTime(0, claw.CloseClaw())
                 .build();
-
         while (!isStopRequested() && !opModeIsActive()) {
 
         }
@@ -203,9 +493,9 @@ public class CameraVermelhoFora extends LinearOpMode {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
             telemetry.addLine("Pipeline rodando");
 
-            Rect leftRect = new Rect(70, 400, 250, 250);
+            Rect leftRect = new Rect(0, 400, 250, 250);
             Rect rightRect = new Rect(1000, 400, 250, 250);
-            Rect midRect = new Rect(570, 350, 150, 150);
+            Rect midRect = new Rect(570, 400, 150, 150);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColor, 2);

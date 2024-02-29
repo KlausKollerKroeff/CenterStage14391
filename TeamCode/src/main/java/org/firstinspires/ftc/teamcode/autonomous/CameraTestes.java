@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -78,14 +79,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
-@Autonomous(name = "CameraVermelhoDentro", group = "Autonomous")
-public class CameraVermelhoDentro extends LinearOpMode {
+@Autonomous(name = "CameraTestes", group = "Autonomous")
+public class CameraTestes extends LinearOpMode {
 
     OpenCvWebcam webcam = null;
     String pos;
 
     public static final double DELAY = 0.5;
-    public static final double DELAYGRANDE = 5;
+    public static final double DELAYGRANDE = 2;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //intake
@@ -119,6 +120,8 @@ public class CameraVermelhoDentro extends LinearOpMode {
         public Action StartIntake() {
             return new StartIntake();
         }
+
+        /////////////////////////////////////////////////////////////////////////
 
         public class StopIntake implements Action {
             private boolean initialized = false;
@@ -157,11 +160,11 @@ public class CameraVermelhoDentro extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    garra.setPosition(1);
+                    garra.setPosition(0.5);
                     initialized = true;
                 }
 
-                garra.setPosition(1);
+                garra.setPosition(0.5);
 
 
                 double pos = garra.getPosition();
@@ -173,6 +176,8 @@ public class CameraVermelhoDentro extends LinearOpMode {
         public Action CloseClaw() {
             return new CloseClaw();
         }
+
+        //////////////////////////////////////////////////////////////////
 
         public class OpenClaw implements Action {
             private boolean initialized = false;
@@ -203,7 +208,7 @@ public class CameraVermelhoDentro extends LinearOpMode {
     public class Lift {
         private DcMotorEx lift;
 
-        private Servo pulso;
+        private Servo pulsoServo;
 
         public Lift(HardwareMap hardwareMap) {
             lift = hardwareMap.get(DcMotorEx.class, "braço");
@@ -211,7 +216,7 @@ public class CameraVermelhoDentro extends LinearOpMode {
             lift.setDirection(DcMotorSimple.Direction.FORWARD);
             lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            pulso= hardwareMap.get(Servo.class, "pulsoOuttake");
+            pulsoServo= hardwareMap.get(Servo.class, "pulsoOuttake");
 
         }
 
@@ -223,17 +228,15 @@ public class CameraVermelhoDentro extends LinearOpMode {
                 if (!initialized) {
                     telemetry.addData("INICIALIZADO LIFT:", true);
                     lift.setDirection(DcMotorSimple.Direction.REVERSE);
-                    lift.setTargetPosition(1100);
+                    lift.setTargetPosition(1025);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setVelocity(1000);
-                    pulso.setPosition(1);
+                    lift.setVelocity(750);
                     initialized = true;
                 }
 
-                lift.setTargetPosition(1100);
+                lift.setTargetPosition(1025);
                 lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                lift.setVelocity(1000);
-                pulso.setPosition(1);
+                lift.setVelocity(750);
 
                 double pos = lift.getCurrentPosition();
 
@@ -241,7 +244,7 @@ public class CameraVermelhoDentro extends LinearOpMode {
                 if(lift.isBusy()) {
                     return true;
                 } else {
-                    return true;
+                    return false;
                 }
             }
         }
@@ -249,26 +252,27 @@ public class CameraVermelhoDentro extends LinearOpMode {
             return new LiftUp();
         }
 
+        ////////////////////////////////////////
+
         public class LiftDown implements Action {
             private boolean initialized = false;
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    lift.setDirection(DcMotorSimple.Direction.FORWARD);
-                    lift.setTargetPosition(0);
+                    lift.setDirection(DcMotorSimple.Direction.REVERSE);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setVelocity(1000);
-                    pulso.setPosition(0.2);
+                    lift.setVelocity(750);
                     initialized = true;
                 }
 
                 lift.setTargetPosition(0);
                 lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                lift.setVelocity(1000);
-                pulso.setPosition(0.2);
+                lift.setVelocity(750);
+                pulsoServo.setPosition(0.18);
 
                 double pos = lift.getCurrentPosition();
+                telemetry.addData("posicao", pos);
                 packet.put("liftPos", pos);
                 if (lift.isBusy()) {
                     return true;
@@ -281,9 +285,44 @@ public class CameraVermelhoDentro extends LinearOpMode {
             return new LiftDown();
         }
     }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //pulso
+    public class PulsoOuttake {
+        private Servo pulsoServo;
 
-    @Override
-    public void runOpMode() {
+        public PulsoOuttake(HardwareMap hardwareMap) {
+            pulsoServo = hardwareMap.get(Servo.class, "pulsoOuttake");
+
+        }
+
+        public class PulsoUp implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    telemetry.addData("INICIALIZADO PULSO:", true);
+                    pulsoServo.setPosition(1);
+                    initialized = true;
+                }
+
+                pulsoServo.setPosition(1);
+
+
+                double pos = pulsoServo.getPosition();
+
+                packet.put("PulsoPos", pos);
+                return false;
+            }
+        }
+
+        public Action PulsoUp() {
+            return new PulsoUp();
+        }
+    }
+
+        @Override
+        public void runOpMode() {
 
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -307,99 +346,56 @@ public class CameraVermelhoDentro extends LinearOpMode {
 
 
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-5, 60, Math.toRadians(270)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(11.5, 60, Math.toRadians(270)));
         Lift lift = new Lift(hardwareMap);
         Claw claw = new Claw(hardwareMap);
         Intake intake = new Intake(hardwareMap);
+        PulsoOuttake pulsoOuttake = new PulsoOuttake(hardwareMap);
 
         Action trajectoryActionM = drive.actionBuilder(drive.pose)
                 //Meio
                 //////////////////////////////////////////////
                 .afterTime(0, claw.CloseClaw())
                 .waitSeconds(DELAY)
-                //Indo para pontuar na marcação
-                .strafeTo(new Vector2d(-6.5, 30))
-                .waitSeconds(DELAY)
-                //Pontuando
-                .afterTime(0, intake.StartIntake())
-                .afterTime(5, intake.StopIntake())
+                .afterTime(1.5, lift.liftUp())
                 .waitSeconds(DELAYGRANDE)
-                //Indo para o backdrop
-                .splineTo(new Vector2d(-100, 42), Math.toRadians(1))
+                .afterTime(1, pulsoOuttake.PulsoUp())
+                .afterTime(5, claw.OpenClaw())
                 .waitSeconds(DELAY)
-                //.waitSeconds(DELAY)
-                //Pontuando
-                .afterTime(0, lift.liftUp())
-                .afterTime(3, claw.OpenClaw())
-                .afterTime(2, lift.liftDown())
+                .afterTime(5, lift.liftDown())
+                .waitSeconds(DELAY)
                 .afterTime(0, claw.CloseClaw())
-                //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
                 .build();
 
         Action trajectoryActionE = drive.actionBuilder(drive.pose)
                 //Esquerda
                 //////////////////////////////////////////////////
-                .afterTime(0.1, claw.CloseClaw())
-                .waitSeconds(DELAY)
-                //Ir e virar para a marcação
-                .strafeTo(new Vector2d(-6.5, 60))
-                .waitSeconds(DELAY)
-                .lineToYSplineHeading(24, Math.toRadians(1))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-5, 24))
-                .waitSeconds(DELAY)
-                //Pontuar
-                .afterTime(0, intake.StartIntake())
-                .afterTime(5, intake.StopIntake())
-                .waitSeconds(DELAYGRANDE)
-                //Indo para o backdrop
-                .splineTo(new Vector2d(-100, 42), Math.toRadians(1))
-                .waitSeconds(DELAY)
-                //.waitSeconds(DELAY)
-                //Pontuando
-                .afterTime(0, lift.liftUp())
-                .afterTime(3, claw.OpenClaw())
-                .afterTime(2, lift.liftDown())
                 .afterTime(0, claw.CloseClaw())
-                //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                .afterTime(1.5, lift.liftUp())
+                .waitSeconds(DELAYGRANDE)
+                .afterTime(1, pulsoOuttake.PulsoUp())
+                .afterTime(5, claw.OpenClaw())
+                .waitSeconds(DELAY)
+                .afterTime(5, lift.liftDown())
+                .waitSeconds(DELAY)
+                .afterTime(0, claw.CloseClaw())
                 .build();
 
         Action trajectoryActionD = drive.actionBuilder(drive.pose)
                 //Direita Vermelho
                 //////////////////////////////////////////////////
-                //Ir e virar para a marcação:
-                .strafeTo(new Vector2d(-6.5, 60))
-                .waitSeconds(DELAY)
-                .lineToYSplineHeading(24, Math.toRadians(180))
-                .waitSeconds(DELAY)
-                //pontuar
-                .afterTime(0, intake.StartIntake())
-                .afterTime(5, intake.StopIntake())
-                .waitSeconds(DELAYGRANDE)
-                // Ir para o backdrop
-                .strafeTo(new Vector2d(-6.5, 0))
-                .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-30, 0))
-                .waitSeconds(DELAY)
-                .splineTo(new Vector2d(-100, 53), Math.toRadians(1))
-                .waitSeconds(DELAY)
-                //Pontuar
-                .afterTime(0, lift.liftUp())
-                .afterTime(3, claw.OpenClaw())
-                .afterTime(2, lift.liftDown())
                 .afterTime(0, claw.CloseClaw())
-                //Estacionando
-                .strafeTo(new Vector2d(-100, 15))
                 .waitSeconds(DELAY)
-                .strafeTo(new Vector2d(-105, 15))
+                .afterTime(1.5, lift.liftUp())
+                .waitSeconds(DELAYGRANDE)
+                .afterTime(1, pulsoOuttake.PulsoUp())
+                .afterTime(5, claw.OpenClaw())
+                .waitSeconds(DELAY)
+                .afterTime(5, lift.liftDown())
+                .waitSeconds(DELAY)
+                .afterTime(0, claw.CloseClaw())
                 .build();
-
         while (!isStopRequested() && !opModeIsActive()) {
 
         }
